@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON PURGE — Infinite Horde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="vignette"></div>
+<div id="damage-flash"></div>
+<div id="round-flash"></div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div class="absolute top-4 left-4 space-y-2">
+    <div class="flex items-center gap-3">
+      <span class="font-display text-xs text-gray-400 font-bold tracking-wider">HP</span>
+      <div class="health-bar"><div class="health-fill" id="health-fill" style="width:100%"></div></div>
+    </div>
+    <div class="flex gap-5 text-sm items-center">
+      <div class="font-display"><span class="text-gray-500 text-xs">ROUND</span> <span id="round-display" class="text-cyan-300 text-xl font-bold glow">1</span></div>
+      <div class="font-display"><span class="text-gray-500 text-xs">KILLS</span> <span id="kills-display" class="text-red-400 text-xl font-bold">0</span></div>
+      <div class="font-display"><span class="text-gray-500 text-xs">COMBO</span> <span id="combo-display" class="text-yellow-400 text-xl font-bold">x1</span></div>
+    </div>
+  </div>
+  
+  <div class="absolute top-4 right-4 text-right space-y-1">
+    <div class="font-display text-3xl font-bold glow" style="color:#ffd700">
+      <span id="coins-display">0</span><span class="text-base ml-1">¢</span>
+    </div>
+    <div class="font-display text-xl"><span id="timer-display" class="text-cyan-300 font-bold">30</span><span class="text-gray-600 text-sm">s</span></div>
+    <div class="text-xs text-gray-600 font-display tracking-wider">BEST: <span id="highscore-display" class="text-gray-400">0</span></div>
+  </div>
+  
+  <div class="absolute bottom-4 left-4 flex gap-2 flex-wrap max-w-lg" id="weapons-list"></div>
+  <div class="absolute bottom-4 right-4 flex items-center gap-3">
+    <div class="dash-indicator" id="dash-indicator" style="border-color:#00ffff;color:#00ffff"><span>DASH</span></div>
+  </div>
+  
+  <div class="boss-bar hidden" id="boss-bar-container">
+    <div class="text-center mb-1 font-display font-bold text-sm tracking-widest" style="color:#ff0066;text-shadow:0 0 10px #ff0066" id="boss-name">BEHEMOTH</div>
+    <div class="boss-bar-inner"><div class="boss-bar-fill" id="boss-bar-fill" style="width:100%"></div></div>
+  </div>
+</div>
+
+<!-- Menu Screen -->
+<div id="menu-screen" class="overlay" style="background:radial-gradient(ellipse at center,rgba(10,5,30,.92),rgba(0,0,0,.98))">
+  <div class="text-center anim-fadeIn">
+    <div class="font-display text-7xl font-black mb-2 shimmer-text tracking-widest">NEON PURGE</div>
+    <div class="font-display text-sm text-cyan-400/60 tracking-[8px] mb-12">INFINITE HORDE SURVIVAL</div>
+    <div class="mb-10 text-gray-400 max-w-md mx-auto space-y-1 text-sm">
+      <div><span class="text-cyan-400 font-bold">WASD</span> Move · <span class="text-cyan-400 font-bold">MOUSE</span> Aim · <span class="text-cyan-400 font-bold">CLICK</span> Fire · <span class="text-cyan-400 font-bold">SPACE</span> Dash</div>
+      <div class="text-gray-500">Infinite map. Escalating hordes. Unlock the armory.</div>
+    </div>
+    <button class="game-btn text-lg anim-float" id="start-btn">ENTER THE PURGE</button>
+    <div class="mt-8 text-xs text-gray-600 font-display tracking-wider">BEST SCORE: <span id="menu-highscore" class="text-cyan-400">0</span> ¢</div>
+  </div>
+</div>
+
+<!-- Lottery Screen -->
+<div id="lottery-screen" class="overlay hidden" style="background:radial-gradient(ellipse at center,rgba(5,5,20,.96),rgba(0,0,0,.99))">
+  <div class="w-full max-w-4xl px-8 py-6">
+    <div class="text-center mb-4">
+      <div class="font-display text-sm text-green-400 tracking-[6px] mb-1">ROUND CLEARED</div>
+      <div class="font-display text-4xl font-black text-white glow" style="color:#00ff88">+<span id="round-bonus">0</span> ¢</div>
+    </div>
+    <div class="text-center mb-6">
+      <div class="font-display text-2xl font-bold tracking-widest text-cyan-300 glow">ARMORY</div>
+    </div>
+    
+    <div class="mb-6 max-w-md mx-auto">
+      <div class="flex justify-between text-xs text-orange-400 font-display tracking-wider mb-1">
+        <span>PITY METER</span><span id="pity-percent">0%</span>
+      </div>
+      <div class="pity-bar-container"><div class="pity-bar-fill" id="pity-bar-fill"></div></div>
+    </div>
+    
+    <div class="flex justify-center mb-4">
+      <div class="reel-container" id="reel-container">
+        <div class="reel-indicator"></div>
+        <div class="reel" id="reel"></div>
+      </div>
+    </div>
+    
+    <div id="lottery-result" class="text-center mb-6 min-h-[80px]"></div>
+    
+    <div class="flex justify-center gap-6 mb-8" id="pull-buttons">
+      <button class="game-btn" id="standard-pull"><div>STANDARD</div><div class="text-xs opacity-70 mt-1">100 ¢</div></button>
+      <button class="game-btn" id="free-pull"><div>FREE PULL</div><div class="text-xs opacity-70 mt-1">Reward</div></button>
+      <button class="game-btn game-btn-premium" id="premium-pull"><div>PREMIUM</div><div class="text-xs opacity-70 mt-1">350 ¢</div></button>
+    </div>
+    
+    <div class="mb-6">
+      <div class="text-xs text-gray-500 font-display tracking-wider mb-2 text-center">ARSENAL</div>
+      <div id="inventory-display" class="flex flex-wrap gap-2 justify-center max-h-32 overflow-y-auto"></div>
+    </div>
+    
+    <div class="text-center">
+      <button class="game-btn" id="continue-btn" style="border-color:rgba(0,255,136,.5);color:#00ff88"><span id="continue-text">DEPLOY ROUND 2</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Game Over Screen -->
+<div id="gameover-screen" class="overlay hidden" style="background:radial-gradient(ellipse at center,rgba(30,0,0,.95),rgba(0,0,0,.99))">
+  <div class="text-center anim-fadeIn">
+    <div class="font-display text-6xl font-black mb-4 glow-strong" style="color:#ff0044">PURGED</div>
+    <div class="text-gray-400 mb-8">The horde has consumed you.</div>
+    <div class="grid grid-cols-3 gap-8 mb-10 max-w-lg mx-auto">
+      <div><div class="text-xs text-gray-500 font-display tracking-wider mb-1">ROUNDS</div><div class="text-4xl font-display font-bold text-cyan-400" id="final-rounds">0</div></div>
+      <div><div class="text-xs text-gray-500 font-display tracking-wider mb-1">KILLS</div><div class="text-4xl font-display font-bold text-red-400" id="final-kills">0</div></div>
+      <div><div class="text-xs text-gray-500 font-display tracking-wider mb-1">COINS</div><div class="text-4xl font-display font-bold" style="color:#ffd700" id="final-coins">0</div></div>
+    </div>
+    <div class="mb-6 text-sm text-gray-500" id="new-record"></div>
+    <button class="game-btn" id="retry-btn" style="border-color:rgba(255,0,68,.5);color:#ff4488">REENTER THE PURGE</button>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/lottery.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#030308;overflow:hidden;font-family:'Rajdhani',sans-serif;color:#e0e0ff;user-select:none}
+canvas{display:block;cursor:crosshair}
+.font-display{font-family:'Orbitron',sans-serif}
+
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.75) 100%)}
+#damage-flash{position:fixed;inset:0;pointer-events:none;z-index:8;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,60,.5) 100%);opacity:0;transition:opacity .15s}
+#round-flash{position:fixed;inset:0;pointer-events:none;z-index:7;background:rgba(0,255,255,.15);opacity:0;transition:opacity .3s}
+
+.overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.hidden{display:none!important}
+
+.glow{text-shadow:0 0 10px currentColor,0 0 20px currentColor}
+.glow-strong{text-shadow:0 0 15px currentColor,0 0 30px currentColor,0 0 50px currentColor}
+
+.rarity-common{color:#9ca3af}.rarity-rare{color:#3b82f6}.rarity-epic{color:#a855f7}.rarity-legendary{color:#f59e0b}.rarity-mythic{color:#ff0066}
+
+.game-btn{background:linear-gradient(135deg,rgba(0,255,255,.08),rgba(0,100,255,.04));border:2px solid rgba(0,255,255,.35);padding:14px 40px;font-family:'Orbitron',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#00ffff;cursor:pointer;transition:all .2s;font-size:14px}
+.game-btn:hover{background:linear-gradient(135deg,rgba(0,255,255,.25),rgba(0,100,255,.12));border-color:#00ffff;box-shadow:0 0 30px rgba(0,255,255,.4);transform:translateY(-2px)}
+.game-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.game-btn-premium{border-color:rgba(255,0,102,.5);color:#ff4488;background:linear-gradient(135deg,rgba(255,0,102,.1),rgba(200,0,80,.05))}
+.game-btn-premium:hover{border-color:#ff0066;box-shadow:0 0 30px rgba(255,0,102,.4)}
+
+.reel-container{width:560px;height:110px;overflow:hidden;border:3px solid rgba(0,255,255,.3);border-radius:10px;position:relative;background:rgba(0,0,0,.85)}
+.reel-container::before,.reel-container::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+.reel-container::before{left:0;background:linear-gradient(90deg,rgba(0,0,0,.9),transparent)}
+.reel-container::after{right:0;background:linear-gradient(270deg,rgba(0,0,0,.9),transparent)}
+.reel-indicator{position:absolute;left:50%;top:0;bottom:0;width:4px;background:#00ffff;box-shadow:0 0 20px #00ffff,0 0 40px #00ffff;transform:translateX(-50%);z-index:3}
+.reel{display:flex;gap:8px;padding:5px;will-change:transform}
+.reel-item{width:100px;height:100px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;border:2px solid;background:rgba(0,0,0,.5)}
+
+.pity-bar-container{width:100%;height:8px;background:rgba(255,170,0,.15);border:1px solid rgba(255,170,0,.4);border-radius:4px;overflow:hidden}
+.pity-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#ffaa00,#ffff00);transition:width .3s;box-shadow:0 0 10px #ffaa00}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes glowPulse{0%,100%{filter:drop-shadow(0 0 10px currentColor)}50%{filter:drop-shadow(0 0 30px currentColor) drop-shadow(0 0 50px currentColor)}}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+.anim-fadeIn{animation:fadeIn .4s ease-out}
+.anim-scaleIn{animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1)}
+.anim-glowPulse{animation:glowPulse 1.5s ease-in-out infinite}
+.anim-float{animation:float 3s ease-in-out infinite}
+
+.shimmer-text{background:linear-gradient(90deg,#fff 0%,#00ffff 25%,#fff 50%,#00ffff 75%,#fff 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+.health-bar{width:240px;height:18px;background:rgba(255,0,60,.15);border:2px solid rgba(255,0,60,.5);border-radius:3px;overflow:hidden;position:relative}
+.health-fill{height:100%;background:linear-gradient(90deg,#ff0044,#ff6699);transition:width .25s;box-shadow:0 0 15px #ff0044 inset}
+.health-fill.low{background:linear-gradient(90deg,#ff0000,#ff4444);animation:pulse .5s infinite}
+
+.boss-bar{position:fixed;top:20px;left:50%;transform:translateX(-50%);width:60%;max-width:600px;z-index:11}
+.boss-bar-inner{height:24px;background:rgba(255,0,102,.15);border:3px solid rgba(255,0,102,.6);border-radius:4px;overflow:hidden}
+.boss-bar-fill{height:100%;background:linear-gradient(90deg,#ff0066,#ff44aa,#ff0066);background-size:200% 100%;animation:shimmer 2s linear infinite;transition:width .2s;box-shadow:0 0 20px #ff0066}
+
+.weapon-chip{background:rgba(0,0,0,.6);border:2px solid;border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;backdrop-filter:blur(4px)}
+.dash-indicator{width:56px;height:56px;border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:900;font-size:10px;backdrop-filter:blur(4px);background:rgba(0,0,0,.4)}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.3)}
+::-webkit-scrollbar-thumb{background:rgba(0,255,255,.3);border-radius:3px}
