@@ -79,25 +79,38 @@ const UI = {
 };
 
 // Event Listeners
-document.getElementById('start-btn').onclick = () => {
-  Sfx.init(); Sfx.click();
+// --- Event Listeners ---
+document.getElementById('start-btn').addEventListener('click', () => { 
+  Sfx.init(); 
+  Sfx.click(); 
   document.getElementById('menu-screen').classList.add('hidden');
+  document.getElementById('hud').classList.remove('hidden');
+  Game.start(); 
+});
+
+document.getElementById('retry-btn').addEventListener('click', () => { 
+  Sfx.init(); 
+  Sfx.click(); 
   document.getElementById('gameover-screen').classList.add('hidden');
+  document.getElementById('menu-screen').classList.add('hidden');
   document.getElementById('lottery-screen').classList.add('hidden');
   document.getElementById('hud').classList.remove('hidden');
-  Game.start();
-};
-document.getElementById('retry-btn').onclick = () => { Sfx.init(); Sfx.click(); Game.start(); };
-document.getElementById('standard-pull').onclick = () => { Sfx.click(); Lottery.doPull(false); };
-document.getElementById('premium-pull').onclick = () => { Sfx.click(); Lottery.doPull(true); };
-document.getElementById('free-pull').onclick = () => { Sfx.click(); Lottery.doPull(false); };
-document.getElementById('continue-btn').onclick = () => {
-  Sfx.click();
-  document.getElementById('lottery-screen').classList.add('hidden');
-  Game.round++; Game.state = 'playing'; Game.startRound();
-};
+  Game.start(); 
+});
 
-// Init
+document.getElementById('standard-pull').addEventListener('click', () => { Sfx.click(); Lottery.doPull(false); });
+document.getElementById('premium-pull').addEventListener('click', () => { Sfx.click(); Lottery.doPull(true); });
+document.getElementById('free-pull').addEventListener('click', () => { Sfx.click(); Lottery.doPull(false); });
+
+document.getElementById('continue-btn').addEventListener('click', () => { 
+  Sfx.click(); 
+  document.getElementById('lottery-screen').classList.add('hidden');
+  Game.round++; 
+  Game.state = 'playing'; 
+  Game.startRound(); 
+});
+
+// --- Init ---
 document.getElementById('menu-highscore').textContent = Game.highScore;
 document.getElementById('highscore-display').textContent = Game.highScore;
 Game.lastT = performance.now();
